@@ -79,7 +79,7 @@ def main():
         train_data_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'data', 'big_data_small', 'OCT-data-1')
         val_data_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'data', 'big_data_small', 'OCT-data-1')
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
-        project_name = 'OCT-data-1-test_1'
+        project_name = 'OCT-data-1-log-test_1'
         train_continue = 'off'
 
 
@@ -95,8 +95,9 @@ def main():
     data_dict['lr'] = 1e-4
 
     data_dict['num_freq_disp'] = 1
-
     data_dict['train_continue'] = train_continue
+
+    data_dict['log_scaling'] = True
 
 
     TRAINER = Trainer(data_dict)

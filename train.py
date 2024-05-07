@@ -38,8 +38,9 @@ class Trainer:
         self.lr = data_dict['lr']
 
         self.num_freq_disp = data_dict['num_freq_disp']
-
         self.train_continue = data_dict['train_continue']
+
+        self.log_scaling = data_dict['log_scaling']
 
         self.device = get_device()
 
@@ -78,11 +79,21 @@ class Trainer:
         execution_time = end_time - start_time
         print(f"Execution time: {execution_time} seconds")
 
-        transform_train = transforms.Compose([
-            Normalize(mean, std),
-            RandomCrop(output_size=(64,64)),
-            ToTensor()
-        ])
+        if self.log_scaling:
+            transform_train = transforms.Compose([
+                LogScaleAndNormalize(mean, std),
+                RandomCrop(output_size=(64,64)),
+                RandomHorizontalFlip(),
+                ToTensor()
+            ])
+        else:
+            transform_train = transforms.Compose([
+                Normalize(mean, std),
+                RandomCrop(output_size=(64,64)),
+                RandomHorizontalFlip(),
+                ToTensor()
+            ])
+
 
         transform_inv_train = transforms.Compose([
             BackTo01Range(),
