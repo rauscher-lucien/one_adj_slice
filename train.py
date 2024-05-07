@@ -13,6 +13,8 @@ from utils import *
 from transforms import *
 from dataset import *
 from model import *
+from vxm_model import *
+from vxm_losses import *
 
 
 class Trainer:
@@ -118,10 +120,12 @@ class Trainer:
         ### initialize network ###
 
         model = NewUNet().to(self.device)
-
         criterion = nn.MSELoss().to(self.device)
-
         optimizer = torch.optim.Adam(model.parameters(), self.lr)
+
+        vxm_model = VxmDense2D(inshape=(64, 64))
+        vxm_losses = [NCC().loss, NCC().loss, Grad_v2('l2', loss_mult=1, smooth_order=1).loss]
+        vxm_optimizer = torch.optim.Adam(vxm_model.parameters(), lr=1e-4)
 
         st_epoch = 0
         best_train_loss = float('inf')
@@ -138,14 +142,28 @@ class Trainer:
 
             for batch, data in enumerate(loader_train, 1):
 
-                optimizer.zero_grad()
-                input_slice, target_img = [x.squeeze(0).to(self.device) for x in data]
-                output_img = model(input_slice)
+                input_img, target_img = [x.squeeze(0).to(self.device) for x in data]
 
-                #plot_intensity_line_distribution(input_slice, 'input')
-                #plot_intensity_line_distribution(output_img, 'output')
+                with torch.no_grad():
+                    denoised_input = model(input_img)
+                    denoised_target = model(target_img)
 
-                loss = criterion(output_img, target_img)
+
+                vxm_optimizer.zero_grad()
+                aligned_target_denoised, aligned_input_denoised, flow  = vxm_model(denoised_input, denoised_target)
+
+                vxm_loss = 0.5*vxm_losses[0](denoised_input, aligned_target_denoised)+\
+                           0.5*vxm_losses[1](denoised_target, aligned_input_denoised)+\
+                           vxm_losses[2](torch.zeros_like(flow), flow)
+                
+                vxm_loss.backward()
+                vxm_optimizer.step()
+
+
+                
+
+
+                loss = criterion(denoised_input, target_img)
                 train_loss += loss.item() 
                 loss.backward()
                 optimizer.step()
@@ -153,9 +171,9 @@ class Trainer:
                 
             if epoch % self.num_freq_disp == 0:
                 # Assuming transform_inv_train can handle the entire stack
-                input_img = transform_inv_train(input_slice)[..., 0]
+                input_img = transform_inv_train(input_img)[..., 0]
                 target_img = transform_inv_train(target_img)[..., 0]
-                output_img = transform_inv_train(output_img)[..., 0]
+                output_img = transform_inv_train(denoised_input)[..., 0]
 
                 #plot_intensity_line_distribution(input_img, 'input')
                 #plot_intensity_line_distribution(output_img, 'output')
@@ -164,7 +182,7 @@ class Trainer:
                     
                     plt.imsave(os.path.join(self.train_results_dir, f"{j}_input.png"), input_img[j, :, :], cmap='gray')
                     plt.imsave(os.path.join(self.train_results_dir, f"{j}_target.png"), target_img[j, :, :], cmap='gray')
-                    plt.imsave(os.path.join(self.train_results_dir, f"{j}_output.png"), output_img[j, :, :], cmap='gray')
+                    plt.imsave(os.path.join(self.train_results_dir, f"{j}_output.png"), denoised_input[j, :, :], cmap='gray')
 
             avg_train_loss = train_loss / len(loader_train)
             self.writer.add_scalar('Loss/train', avg_train_loss, epoch)
