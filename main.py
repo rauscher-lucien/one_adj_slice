@@ -79,7 +79,7 @@ def main():
         train_data_dir = r"Z:\members\Rauscher\data\OCT-data-1"
         val_data_dir = r"Z:\members\Rauscher\data\OCT-data-1"
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
-        project_name = 'OCT-data-1-test_2'
+        project_name = 'OCT-data-1-test_3'
         train_continue = 'off'
 
 
@@ -94,7 +94,7 @@ def main():
     data_dict['batch_size'] = 8
     data_dict['lr'] = 1e-4
 
-    data_dict['num_freq_disp'] = 10
+    data_dict['num_freq_disp'] = 1
     data_dict['train_continue'] = train_continue
 
     data_dict['log_scaling'] = False

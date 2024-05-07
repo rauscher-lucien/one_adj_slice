@@ -155,6 +155,55 @@ class RandomCrop:
         target_cropped = target_slice[top:top+new_h, left:left+new_w, :]
 
         return (input_cropped, target_cropped)
+    
+
+
+
+class AddGaussianNoise:
+    """
+    Add Gaussian noise to both input and target slices.
+
+    Args:
+        std_dev_range (tuple): Range for standard deviation (min, max) of the Gaussian noise.
+        noise_shift_range (tuple): Range for mean shift (min, max) of the Gaussian noise.
+    """
+
+    def __init__(self, std_dev_range=(0.01, 0.05), noise_shift_range=(-0.1, 0.1)):
+        self.std_dev_range = std_dev_range
+        self.noise_shift_range = noise_shift_range
+
+    def add_gaussian_noise(self, image, std_dev, mean_shift):
+        """Helper method to add Gaussian noise to an image."""
+        noise = np.random.normal(mean_shift, std_dev, image.shape)
+        return image + noise
+
+    def __call__(self, data):
+        """
+        Apply Gaussian noise to both input and target slices.
+
+        Args:
+            data (tuple): Tuple containing (input_slices, target_slice).
+                - input_slices (numpy.ndarray): Input slices with dimensions (H, W, 1).
+                - target_slice (numpy.ndarray): Target slice with dimensions (H, W, 1).
+
+        Returns:
+            tuple: Noisy (input_slices, target_slice).
+        """
+        input_slice, target_slice = data
+
+        # Determine the maximum value in both input and target slices for consistent noise scaling
+        max_value = max(np.max(input_slice), np.max(target_slice))
+
+        # Sample standard deviation and mean shift for noise
+        std_dev = np.random.uniform(*self.std_dev_range) * max_value
+        mean_shift = np.random.uniform(*self.noise_shift_range) * max_value
+
+        # Apply noise independently to input slices and the target slice
+        noisy_input_slice = self.add_gaussian_noise(input_slice, std_dev, mean_shift)
+        noisy_target_slice = self.add_gaussian_noise(target_slice, std_dev, mean_shift)
+
+        return noisy_input_slice, noisy_target_slice
+
 
     
 
