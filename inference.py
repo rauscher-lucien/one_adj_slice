@@ -37,8 +37,8 @@ def main():
 
     #********************************************************#
 
-    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\OCT-data-1-test_1"
-    data_dir = r"C:\Users\rausc\Documents\EMBL\data\big_data_small\good_sample_unidentified"
+    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\OCT-data-1-log-test_1"
+    data_dir = r"C:\Users\rausc\Documents\EMBL\data\big_data_small\OCT-data-1"
     project_name = os.path.basename(project_dir)
     inference_name = os.path.basename(data_dir)
 
@@ -69,7 +69,7 @@ def main():
     mean, std = load_normalization_params(checkpoints_dir)
     
     inf_transform = transforms.Compose([
-        Normalize(mean, std),
+        LogScaleAndNormalize(mean, std),
         CropToMultipleOf16Inference(),
         ToTensor(),
     ])

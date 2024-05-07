@@ -76,10 +76,10 @@ def main():
         print(f"Train continue: {train_continue}")
     else:
         # If not running on the server, perhaps use a default data_dir or handle differently
-        train_data_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'data', 'big_data_small', 'OCT-data-1')
-        val_data_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'data', 'big_data_small', 'OCT-data-1')
+        train_data_dir = r"Z:\members\Rauscher\data\OCT-data-1"
+        val_data_dir = r"Z:\members\Rauscher\data\OCT-data-1"
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
-        project_name = 'OCT-data-1-log-test_1'
+        project_name = 'OCT-data-1-test_2'
         train_continue = 'off'
 
 
@@ -94,10 +94,10 @@ def main():
     data_dict['batch_size'] = 8
     data_dict['lr'] = 1e-4
 
-    data_dict['num_freq_disp'] = 1
+    data_dict['num_freq_disp'] = 10
     data_dict['train_continue'] = train_continue
 
-    data_dict['log_scaling'] = True
+    data_dict['log_scaling'] = False
 
 
     TRAINER = Trainer(data_dict)

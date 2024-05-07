@@ -58,13 +58,13 @@ class Trainer:
 
         
 
-    def load(self, checkpoints_dir, model, epoch=[], optimizer=[]):
+    def load(self, checkpoints_dir, model, device, epoch=[], optimizer=[]):
 
-        dict_net = torch.load('%s/best_model.pth' % (checkpoints_dir))
+        dict_net = torch.load('%s/best_model.pth' % (checkpoints_dir), map_location=device)
 
         model.load_state_dict(dict_net['model'])
         optimizer.load_state_dict(dict_net['optimizer'])
-        epoch.load_state_dict(dict_net['epoch'])
+        epoch = dict_net['epoch']
 
         print('Loaded %dth network' % epoch)
 
@@ -128,7 +128,7 @@ class Trainer:
 
         if self.train_continue == 'on':
             print(self.checkpoints_dir)
-            model, optimizer, st_epoch = self.load(self.checkpoints_dir, model, st_epoch, optimizer)
+            model, optimizer, st_epoch = self.load(self.checkpoints_dir, model, self.device, st_epoch, optimizer)
             model = model.to(self.device)
 
 
@@ -141,6 +141,10 @@ class Trainer:
                 optimizer.zero_grad()
                 input_slice, target_img = [x.squeeze(0).to(self.device) for x in data]
                 output_img = model(input_slice)
+
+                #plot_intensity_line_distribution(input_slice, 'input')
+                #plot_intensity_line_distribution(output_img, 'output')
+
                 loss = criterion(output_img, target_img)
                 train_loss += loss.item() 
                 loss.backward()
@@ -152,6 +156,9 @@ class Trainer:
                 input_img = transform_inv_train(input_slice)[..., 0]
                 target_img = transform_inv_train(target_img)[..., 0]
                 output_img = transform_inv_train(output_img)[..., 0]
+
+                #plot_intensity_line_distribution(input_img, 'input')
+                #plot_intensity_line_distribution(output_img, 'output')
 
                 for j in range(target_img.shape[0]):
                     
