@@ -76,10 +76,10 @@ def main():
         print(f"Train continue: {train_continue}")
     else:
         # If not running on the server, perhaps use a default data_dir or handle differently
-        train_data_dir = r"Z:\members\Rauscher\data\big_data_small\Nematostella_B"
-        val_data_dir = r"Z:\members\Rauscher\data\big_data_small\Nematostella_B"
+        train_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
+        val_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
-        project_name = 'Nema_B-test_1'
+        project_name = 'Nema_B-test_2'
         train_continue = 'off'
 
 
