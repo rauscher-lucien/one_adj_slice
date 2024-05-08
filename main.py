@@ -79,7 +79,7 @@ def main():
         train_data_dir = r"Z:\members\Rauscher\data\OCT-data-1"
         val_data_dir = r"Z:\members\Rauscher\data\OCT-data-1"
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
-        project_name = 'OCT-data-1-test_3'
+        project_name = 'OCT-data-1-vxm-test_1'
         train_continue = 'off'
 
 
