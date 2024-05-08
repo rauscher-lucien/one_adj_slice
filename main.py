@@ -98,6 +98,7 @@ def main():
     data_dict['train_continue'] = train_continue
 
     data_dict['log_scaling'] = False
+    data_dict['model_depth'] = 4
 
 
     TRAINER = Trainer(data_dict)

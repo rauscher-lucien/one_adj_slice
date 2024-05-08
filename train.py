@@ -41,6 +41,7 @@ class Trainer:
         self.train_continue = data_dict['train_continue']
 
         self.log_scaling = data_dict['log_scaling']
+        self.model_depth = data_dict['model_depth']
 
         self.device = get_device()
 
@@ -118,9 +119,7 @@ class Trainer:
         ### initialize network ###
 
         model = NewUNet().to(self.device)
-
         criterion = nn.MSELoss().to(self.device)
-
         optimizer = torch.optim.Adam(model.parameters(), self.lr)
 
         st_epoch = 0
@@ -138,14 +137,11 @@ class Trainer:
 
             for batch, data in enumerate(loader_train, 1):
 
-                optimizer.zero_grad()
-                input_slice, target_img = [x.squeeze(0).to(self.device) for x in data]
-                output_img = model(input_slice)
+                input_img, target_img = [x.squeeze(0).to(self.device) for x in data]
 
-                #plot_intensity_line_distribution(input_slice, 'input')
-                #plot_intensity_line_distribution(output_img, 'output')
+                denoised_input = model(input_img)
 
-                loss = criterion(output_img, target_img)
+                loss = criterion(denoised_input, target_img)
                 train_loss += loss.item() 
                 loss.backward()
                 optimizer.step()
@@ -153,9 +149,9 @@ class Trainer:
                 
             if epoch % self.num_freq_disp == 0:
                 # Assuming transform_inv_train can handle the entire stack
-                input_img = transform_inv_train(input_slice)[..., 0]
+                input_img = transform_inv_train(input_img)[..., 0]
                 target_img = transform_inv_train(target_img)[..., 0]
-                output_img = transform_inv_train(output_img)[..., 0]
+                denoised_input = transform_inv_train(denoised_input)[..., 0]
 
                 #plot_intensity_line_distribution(input_img, 'input')
                 #plot_intensity_line_distribution(output_img, 'output')
@@ -164,7 +160,7 @@ class Trainer:
                     
                     plt.imsave(os.path.join(self.train_results_dir, f"{j}_input.png"), input_img[j, :, :], cmap='gray')
                     plt.imsave(os.path.join(self.train_results_dir, f"{j}_target.png"), target_img[j, :, :], cmap='gray')
-                    plt.imsave(os.path.join(self.train_results_dir, f"{j}_output.png"), output_img[j, :, :], cmap='gray')
+                    plt.imsave(os.path.join(self.train_results_dir, f"{j}_output.png"), denoised_input[j, :, :], cmap='gray')
 
             avg_train_loss = train_loss / len(loader_train)
             self.writer.add_scalar('Loss/train', avg_train_loss, epoch)
