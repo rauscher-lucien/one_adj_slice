@@ -9,7 +9,7 @@ import glob
 from torchvision import transforms
 import matplotlib.pyplot as plt
 
-from model import *
+from flex_model import *
 from transforms import *
 from utils import *
 from dataset import *
@@ -37,7 +37,8 @@ def main():
 
     #********************************************************#
 
-    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\big_data_small-test_1"
+    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-flex_model-6-test_1"
+    model_depth = 6
     data_dir = r"Z:\members\Rauscher\data\big_data_small\Nematostella_B"
     project_name = os.path.basename(project_dir)
     inference_name = os.path.basename(data_dir)
@@ -94,7 +95,7 @@ def main():
     )
 
     
-    model = NewUNet()
+    model = FlexibleUNet(depth=model_depth).to(device)
     model, epoch = load(checkpoints_dir, model)
 
     num_inf = len(inf_dataset)

@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 
+from utils import *
+
 
 class ConvBlock(nn.Module):
     '''(Conv2d => BN => ReLU) x 2'''
@@ -78,6 +80,7 @@ class FlexibleUNet(nn.Module):
             x_a, x_b = down_layer(x)
             down_outputs.append(x_a)
             x = x_b
+            #plot_intensity_line_distribution(x, 'down')
 
         # Central convolution block
         x = self.center_conv(x)
@@ -85,6 +88,7 @@ class FlexibleUNet(nn.Module):
         # Forward pass through up-sampling blocks
         for i, up_layer in enumerate(self.up_layers):
             x = up_layer(x, down_outputs[-(i + 1)])
+            #plot_intensity_line_distribution(x, 'up')
 
         # Final output layer
         x = self.outconv(x)

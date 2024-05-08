@@ -12,7 +12,9 @@ from torch.utils.tensorboard import SummaryWriter
 from utils import *
 from transforms import *
 from dataset import *
+from model import *
 from flex_model import *
+from networks import *
 
 
 class Trainer:
@@ -97,8 +99,8 @@ class Trainer:
 
 
         transform_inv_train = transforms.Compose([
-            BackTo01Range(),
-            ToNumpy()
+            ToNumpy(),
+            DenormalizeAndClip16Bit(mean, std)
         ])
 
 
@@ -118,7 +120,9 @@ class Trainer:
 
         ### initialize network ###
 
-        model = FlexibleUNet(depth=self.model_depth).to(self.device)
+        model = NewUNet().to(self.device)
+        #model = AutoEncoder().to(self.device)
+        #model = FlexibleUNet(depth=self.model_depth).to(self.device)
         criterion = nn.MSELoss().to(self.device)
         optimizer = torch.optim.Adam(model.parameters(), self.lr)
 
@@ -138,8 +142,11 @@ class Trainer:
             for batch, data in enumerate(loader_train, 1):
 
                 input_img, target_img = [x.squeeze(0).to(self.device) for x in data]
-
                 denoised_input = model(input_img)
+
+                #plot_intensity_line_distribution(input_img, 'input')
+                #plot_intensity_line_distribution(denoised_input, 'output')
+                #plot_intensity_line_distribution(target_img, 'target')
 
                 loss = criterion(denoised_input, target_img)
                 train_loss += loss.item() 
@@ -153,8 +160,8 @@ class Trainer:
                 target_img = transform_inv_train(target_img)[..., 0]
                 denoised_input = transform_inv_train(denoised_input)[..., 0]
 
-                #plot_intensity_line_distribution(input_img, 'input')
-                #plot_intensity_line_distribution(output_img, 'output')
+                plot_intensity_line_distribution(input_img, 'input')
+                plot_intensity_line_distribution(denoised_input, 'output')
 
                 for j in range(target_img.shape[0]):
                     

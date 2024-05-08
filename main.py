@@ -79,12 +79,12 @@ def main():
         print(f"model depth: {model_depth}")
     else:
         # If not running on the server, perhaps use a default data_dir or handle differently
-        train_data_dir = r"Z:\members\Rauscher\data\big_data_small\Nematostella_B"
-        val_data_dir = r"Z:\members\Rauscher\data\big_data_small\Nematostella_B"
+        train_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
+        val_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
-        project_name = 'Nema_B-flex_model-5-test_1'
-        train_continue = 'off'
-        model_depth = 5
+        project_name = 'Nema_B-flex_model-4-test_1'
+        train_continue = 'on'
+        model_depth = 3
 
 
     data_dict = {}

@@ -323,11 +323,7 @@ class ToTensor(object):
 
 
 
-class ToNumpy(object):
 
-    def __call__(self, data):
-
-        return data.to('cpu').detach().numpy().transpose(0, 2, 3, 1)
     
     
 
@@ -358,3 +354,47 @@ class BackTo01Range(object):
 
         return normalized_tensor
 
+
+
+class DenormalizeAndClip16Bit(object):
+    """
+    Denormalize an image using mean and standard deviation, and clip values to the 16-bit range.
+    
+    Args:
+        mean (float or tuple): Mean for each channel.
+        std (float or tuple): Standard deviation for each channel.
+    """
+
+    def __init__(self, mean, std):
+        self.mean = mean
+        self.std = std
+        # 16-bit range is 0 to 65535
+        self.min_value = 0
+        self.max_value = 65535
+
+    def __call__(self, img):
+        """
+        Denormalize an image and clip it to the 16-bit range.
+        
+        Args:
+            img (numpy array): Normalized image to be denormalized.
+        
+        Returns:
+            numpy array: Denormalized and clipped image.
+        """
+        # Denormalize the image
+        img_denormalized = (img * self.std) + self.mean
+
+        # Clip values to the 16-bit range
+        img_clipped = np.clip(img_denormalized, a_min=self.min_value, a_max=self.max_value)
+
+        return img_clipped
+
+
+
+
+class ToNumpy(object):
+
+    def __call__(self, data):
+
+        return data.to('cpu').detach().numpy().transpose(0, 2, 3, 1)
