@@ -58,6 +58,7 @@ def main():
         parser.add_argument('--project_name', type=str, help='Name of the project')
         parser.add_argument('--train_continue', type=str, default='off', choices=['on', 'off'],
                             help='Flag to continue training: "on" or "off" (default: "off")')
+        parser.add_argument('--model_depth', type=int, help='model depth')
     
 
         # Parse arguments
@@ -68,19 +69,22 @@ def main():
         val_data_dir = args.val_data_dir
         project_name = args.project_name 
         train_continue = args.train_continue
+        model_depth = args.model_depth
         project_dir = os.path.join('/g', 'prevedel', 'members', 'Rauscher', 'projects', 'one_adj_slice')
 
         print(f"Using train data directory: {train_data_dir}")
         print(f"Using val data directory: {val_data_dir}")
         print(f"Project name: {project_name}")
         print(f"Train continue: {train_continue}")
+        print(f"model depth: {model_depth}")
     else:
         # If not running on the server, perhaps use a default data_dir or handle differently
         train_data_dir = r"Z:\members\Rauscher\data\big_data_small\Nematostella_B"
         val_data_dir = r"Z:\members\Rauscher\data\big_data_small\Nematostella_B"
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
-        project_name = 'Nema_B-test_1'
+        project_name = 'Nema_B-flex_model-5-test_1'
         train_continue = 'off'
+        model_depth = 5
 
 
     data_dict = {}
@@ -98,7 +102,7 @@ def main():
     data_dict['train_continue'] = train_continue
 
     data_dict['log_scaling'] = False
-    data_dict['model_depth'] = 4
+    data_dict['model_depth'] = model_depth
 
 
     TRAINER = Trainer(data_dict)

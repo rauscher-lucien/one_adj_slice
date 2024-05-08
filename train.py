@@ -12,7 +12,7 @@ from torch.utils.tensorboard import SummaryWriter
 from utils import *
 from transforms import *
 from dataset import *
-from model import *
+from flex_model import *
 
 
 class Trainer:
@@ -118,7 +118,7 @@ class Trainer:
 
         ### initialize network ###
 
-        model = NewUNet().to(self.device)
+        model = FlexibleUNet(depth=self.model_depth).to(self.device)
         criterion = nn.MSELoss().to(self.device)
         optimizer = torch.optim.Adam(model.parameters(), self.lr)
 
