@@ -142,8 +142,8 @@ class Trainer:
                 input_slice, target_img = [x.squeeze(0).to(self.device) for x in data]
                 output_img = model(input_slice)
 
-                #plot_intensity_line_distribution(input_slice, 'input')
-                #plot_intensity_line_distribution(output_img, 'output')
+                plot_intensity_line_distribution(input_slice, 'input')
+                plot_intensity_line_distribution(output_img, 'output')
 
                 loss = criterion(output_img, target_img)
                 train_loss += loss.item() 

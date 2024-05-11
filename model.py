@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import time
 
 from utils import *
 
@@ -49,7 +48,7 @@ class UpBlock(nn.Module):
 
 
 class NewUNet(nn.Module):
-    def __init__(self,):
+    def __init__(self):
         super(NewUNet, self).__init__()
 
         self.base = 32
