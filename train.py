@@ -12,7 +12,9 @@ from torch.utils.tensorboard import SummaryWriter
 from utils import *
 from transforms import *
 from dataset import *
+
 from model_v_1 import *
+from model import *
 
 
 class Trainer:
@@ -112,7 +114,7 @@ class Trainer:
 
         ### initialize network ###
 
-        model = UNet(1, 1).to(self.device)
+        model = NewUNet().to(self.device)
 
         criterion = nn.MSELoss().to(self.device)
 
@@ -148,7 +150,7 @@ class Trainer:
                 optimizer.step()
 
                 
-            if epoch % self.num_freq_disp == 0:
+            if batch % self.num_freq_disp == 0:
                 # Assuming transform_inv_train can handle the entire stack
                 input_img = transform_inv_train(input_img)[..., 0]
                 target_img = transform_inv_train(target_img)[..., 0]

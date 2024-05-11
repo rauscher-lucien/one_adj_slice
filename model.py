@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import time
 
 from utils import *
 
@@ -12,10 +11,10 @@ class ConvBlock(nn.Module):
         self.convblock = nn.Sequential(
             nn.Conv2d(in_ch, out_ch, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm2d(out_ch),
-            nn.LeakyReLU(inplace=True),
+            nn.ReLU(inplace=True),
             nn.Conv2d(out_ch, out_ch, kernel_size=3, padding=1, bias=False),
             nn.BatchNorm2d(out_ch),
-            nn.LeakyReLU(inplace=True)
+            nn.ReLU(inplace=True)
         )
 
     def forward(self, x):
@@ -65,7 +64,6 @@ class NewUNet(nn.Module):
         self.up2 = UpBlock(in_ch=2*self.base, out_ch=self.base)
         self.up1 = UpBlock(in_ch=self.base, out_ch=self.base)
         self.outconv1 = nn.Conv2d(self.base, 1, kernel_size=3, padding=1, bias=False)
-        self.outconv2 = nn.Conv2d(1, 1, kernel_size=3, padding=1, bias=False)
 
     def forward(self, x):
         # Forward pass through the UNet model
@@ -90,6 +88,4 @@ class NewUNet(nn.Module):
         x0 = self.up1(x1, x0_a)
         #tensor_to_image(x0, 'image11.png')
         x = self.outconv1(x0)
-        #tensor_to_image(x, 'image12.png')
-        x = self.outconv2(x)
         return x

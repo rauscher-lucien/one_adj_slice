@@ -5,6 +5,7 @@ from skimage import filters, exposure
 import matplotlib.pyplot as plt
 from PIL import Image
 import torch
+from sklearn.preprocessing import PowerTransformer
 
 class Normalize(object):
     """
@@ -118,6 +119,52 @@ class LogScaleAndNormalize(object):
 
 
         return normalized_input_img, normalized_target_img
+
+
+class PowerTransform(object):
+    """
+    Apply the Yeo-Johnson power transformation to normalize images.
+    
+    Args:
+        method (str): Method of power transformation ('yeo-johnson' or 'box-cox').
+    """
+
+    def __init__(self, method='yeo-johnson'):
+        self.transformer = PowerTransformer(method=method, standardize=True)
+
+    def __call__(self, data):
+        """
+        Apply Yeo-Johnson transformation to both input and target images in the tuple.
+        
+        Args:
+            data (tuple): Containing input and target images to be transformed.
+        
+        Returns:
+            Tuple: Transformed input and target images.
+        """
+        input_img, target_img = data
+        
+        # Check if images need reshaping for transformation
+        original_shape_input = input_img.shape
+        original_shape_target = target_img.shape
+        
+        # Reshape if necessary (PowerTransformer expects 2D arrays)
+        if input_img.ndim == 3:
+            input_img = input_img.reshape(-1, original_shape_input[1] * original_shape_input[2]).T
+        if target_img.ndim == 3:
+            target_img = target_img.reshape(-1, original_shape_target[1] * original_shape_target[2]).T
+        
+        # Apply transformation
+        input_transformed = self.transformer.fit_transform(input_img)
+        target_transformed = self.transformer.fit_transform(target_img)
+        
+        # Reshape back to original shape
+        input_transformed = input_transformed.T.reshape(original_shape_input)
+        target_transformed = target_transformed.T.reshape(original_shape_target)
+
+        return input_transformed, target_transformed
+
+
 
 
 class RandomFlip(object):

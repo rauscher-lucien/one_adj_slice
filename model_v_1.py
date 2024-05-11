@@ -48,7 +48,6 @@ class UNet(nn.Module):
                 self.decoder_blocks.append(SimpleConvBlock(next_channels * 2, next_channels))
             else:
                 self.decoder_blocks.append(SimpleConvBlock(next_channels, next_channels))
-            current_channels = next_channels
 
         # Final output layer
         self.final_layer = nn.Conv2d(current_channels, out_channels, kernel_size=1)

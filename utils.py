@@ -315,7 +315,7 @@ def get_device():
     return device
 
 
-def plot_intensity_line_distribution(image, title='1', bins=200):
+def plot_intensity_line_distribution(image, title='1', bins=255):
     plt.figure(figsize=(10, 5))
 
     if isinstance(image, torch.Tensor):
