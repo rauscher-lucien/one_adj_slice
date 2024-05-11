@@ -2,50 +2,70 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-class Unet2D(nn.Module):
-    def __init__(self, infeats=2, nb_features=[64, 128, 256, 512]):
-        super().__init__()
-        self.encoders = nn.ModuleList()
-        self.decoders = nn.ModuleList()
-        
-        # Encoder
-        for i, feats in enumerate(nb_features):
-            in_channels = infeats if i == 0 else nb_features[i - 1]
-            self.encoders.append(nn.Sequential(
-                nn.Conv2d(in_channels, feats, kernel_size=3, padding=1),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(feats, feats, kernel_size=3, padding=1),
-                nn.ReLU(inplace=True),
-                nn.MaxPool2d(2)
-            ))
-        
-        # Decoder
-        for i in reversed(range(1, len(nb_features))):
-            feats = nb_features[i]
-            self.decoders.append(nn.Sequential(
-                nn.ConvTranspose2d(feats, feats // 2, kernel_size=2, stride=2),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(feats, feats // 2, kernel_size=3, padding=1),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(feats // 2, feats // 2, kernel_size=3, padding=1),
-                nn.ReLU(inplace=True)
-            ))
-        
-        # Final layer
-        self.final_conv = nn.Conv2d(nb_features[0], nb_features[0] // 2, kernel_size=3, padding=1)
-        
+
+class ConvBlock(nn.Module):
+    '''(Conv2d => BN => ReLU) x 2'''
+    def __init__(self, in_ch, out_ch):
+        super(ConvBlock, self).__init__()
+        self.convblock = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_ch, out_ch, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(out_ch),
+            nn.ReLU(inplace=True)
+        )
+
     def forward(self, x):
-        skips = []
-        for enc in self.encoders:
-            x = enc(x)
-            skips.append(x)
-        skips = skips[::-1]
-        
-        for i, dec in enumerate(self.decoders):
-            x = dec(x)
-            x = torch.cat((x, skips[i + 1]), dim=1)
-        
-        return self.final_conv(x)
+        return self.convblock(x)
+
+class DownBlock(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super(DownBlock, self).__init__()
+        self.convblock = ConvBlock(in_ch, out_ch)
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2)
+
+    def forward(self, x):
+        x_a =  self.convblock(x)
+        x_b = self.pool(x_a)
+        return x_a, x_b
+
+class UpBlock(nn.Module):
+    def __init__(self, in_ch, out_ch):
+        super(UpBlock, self).__init__()
+        self.upsample = nn.ConvTranspose2d(in_ch, in_ch, kernel_size=2, stride=2, padding=0)
+        self.convblock = ConvBlock(2*in_ch, out_ch)
+
+    def forward(self, x, x_new):
+        x = self.upsample(x)
+        x = torch.cat([x, x_new], dim=1)
+        x = self.convblock(x)
+        return x
+
+class NewUNetVXM(nn.Module):
+    def __init__(self):
+        super(NewUNetVXM, self).__init__()
+        self.base = 32
+
+        # Define a simpler network with fewer layers
+        self.down0 = DownBlock(in_ch=2, out_ch=self.base)
+        self.down1 = DownBlock(in_ch=self.base, out_ch=2*self.base)
+        # Remove one down block and corresponding up block to make it less deep
+        self.conv = ConvBlock(in_ch=2*self.base, out_ch=2*self.base)
+        self.up1 = UpBlock(in_ch=2*self.base, out_ch=self.base)
+        self.up0 = UpBlock(in_ch=self.base, out_ch=self.base)
+        self.outconv = nn.Conv2d(self.base, 1, kernel_size=3, padding=1, bias=False)
+
+    def forward(self, x):
+        x0_a, x0_b = self.down0(x)
+        x1_a, x1_b = self.down1(x0_b)
+        x2 = self.conv(x1_b)
+        x1 = self.up1(x2, x1_a)
+        x0 = self.up0(x1, x0_a)
+        x = self.outconv(x0)
+        return x
+
+
 
 class SpatialTransformer2D(nn.Module):
     def __init__(self, inshape):
@@ -63,8 +83,8 @@ class SpatialTransformer2D(nn.Module):
 class VxmDense2D(nn.Module):
     def __init__(self, inshape, nb_features=[64, 128, 256, 512]):
         super().__init__()
-        self.unet = Unet2D(infeats=2, nb_features=nb_features)
-        self.flow_conv = nn.Conv2d(nb_features[0] // 2, 2, kernel_size=3, padding=1)
+        self.unet = NewUNetVXM()
+        self.flow_conv = nn.Conv2d(1, 1, kernel_size=3, padding=1)
         self.transformer = SpatialTransformer2D(inshape)
     
     def forward(self, src, tgt):
@@ -75,9 +95,4 @@ class VxmDense2D(nn.Module):
         warped_tgt = self.transformer(tgt, flow)
         return warped_src, warped_tgt, flow
 
-# Example usage:
-# Define the model with an example 2D input shape
-model = VxmDense2D(inshape=(128, 128))
-source_image = torch.randn(1, 1, 128, 128)
-target_image = torch.randn(1, 1, 128, 128)
-warped, flow = model(source_image, target_image)
+

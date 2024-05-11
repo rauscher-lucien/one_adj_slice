@@ -373,3 +373,59 @@ def plot_as_image(data, title='Image Display', cmap='gray', colorbar=True):
 
     print(data.min())
     print(data.max())
+
+
+def default_unet_features():
+    nb_features = [
+        [16, 32, 32, 32],             # encoder
+        [32, 32, 32, 32, 32, 16, 16]  # decoder
+    ]
+    return nb_features
+
+
+
+
+def plot_images(images, titles=None, cmap='gray', image_idx=0, channel_idx=0):
+    """
+    Plots a list of images stored as numpy arrays or PyTorch tensors, selecting only the specified image
+    and channel.
+
+    Parameters:
+    - images (list): List of images to plot, where each image is a numpy array or PyTorch tensor.
+    - titles (list, optional): Titles for each subplot. If not provided, indices are used as titles.
+    - cmap (str): The colormap used to display the images. Defaults to 'gray' which is common for single-channel.
+    - image_idx (int): Index of the image to plot in case the input is a batch.
+    - channel_idx (int): Index of the channel to plot in case the input has multiple channels.
+    """
+    n = len(images)  # Number of images
+    cols = min(n, 3)  # Up to 3 columns of images
+    rows = (n + cols - 1) // cols  # Calculate required rows
+    
+    plt.figure(figsize=(cols * 5, rows * 5))  # Dynamic figure size based on number of images
+    
+    for i, img in enumerate(images):
+        ax = plt.subplot(rows, cols, i + 1)
+        # Check if the input image is a PyTorch tensor and convert it
+        if isinstance(img, torch.Tensor):
+            img = img.detach().numpy()  # Convert tensor to numpy array
+        
+        # If the image has more than two dimensions, select the specified image and channel
+        if img.ndim > 2:
+            img = img[image_idx, channel_idx]  # Select one image and one channel
+        
+        # Using imshow to plot the image
+        ax.imshow(img, cmap=cmap)
+        ax.axis('off')  # Hide axes ticks
+        
+        # Set title if provided, else use index as title
+        if titles:
+            ax.set_title(titles[i])
+        else:
+            ax.set_title(f'Image {i+1}')
+
+    plt.tight_layout()
+    plt.show()
+
+
+
+

@@ -4,8 +4,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.distributions.normal import Normal
 
-from .. import default_unet_features
-from . import layers
+from utils import default_unet_features
+from layers import *
 from modelio import LoadableModel, store_config_args
 
 
@@ -222,13 +222,13 @@ class VxmDense(LoadableModel):
 
         # configure optional resize layers (downsize)
         if not unet_half_res and int_steps > 0 and int_downsize > 1:
-            self.resize = layers.ResizeTransform(int_downsize, ndims)
+            self.resize = ResizeTransform(int_downsize, ndims)
         else:
             self.resize = None
 
         # resize to full res
         if int_steps > 0 and int_downsize > 1:
-            self.fullsize = layers.ResizeTransform(1 / int_downsize, ndims)
+            self.fullsize = ResizeTransform(1 / int_downsize, ndims)
         else:
             self.fullsize = None
 
@@ -237,10 +237,10 @@ class VxmDense(LoadableModel):
 
         # configure optional integration layer for diffeomorphic warp
         down_shape = [int(dim / int_downsize) for dim in inshape]
-        self.integrate = layers.VecInt(down_shape, int_steps) if int_steps > 0 else None
+        self.integrate = VecInt(down_shape, int_steps) if int_steps > 0 else None
 
         # configure transformer
-        self.transformer = layers.SpatialTransformer(inshape, mode=sample_mode)
+        self.transformer = SpatialTransformer(inshape, mode=sample_mode)
 
     def forward(self, source, target, registration=False):
         '''
