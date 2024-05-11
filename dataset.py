@@ -80,8 +80,6 @@ class InferenceDataset(torch.utils.data.Dataset):
         input_slice = self.preloaded_data[file_path][input_slice_index][..., np.newaxis]
         target_slice = self.preloaded_data[file_path][target_slice_index][..., np.newaxis]
 
-        plot_intensity_line_distribution(input_slice)
-
         if self.transform:
             input_slice = self.transform((input_slice, target_slice))
 

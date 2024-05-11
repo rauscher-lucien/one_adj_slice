@@ -82,9 +82,9 @@ def main():
         train_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
         val_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
-        project_name = 'Nema_B-flex_model-4-test_1'
-        train_continue = 'on'
-        model_depth = 3
+        project_name = 'Nema_B-v_1-test_1'
+        train_continue = 'off'
+        model_depth = 4
 
 
     data_dict = {}

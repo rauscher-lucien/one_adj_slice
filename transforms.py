@@ -38,6 +38,45 @@ class Normalize(object):
         return input_normalized, target_normalized
 
 
+class MinMaxNormalize(object):
+    """
+    Normalize images to the 0-1 range using global minimum and maximum values provided at initialization.
+    """
+
+    def __init__(self, global_min, global_max):
+        """
+        Initializes the normalizer with global minimum and maximum values.
+
+        Parameters:
+        - global_min (float): The global minimum value used for normalization.
+        - global_max (float): The global maximum value used for normalization.
+        """
+        self.global_min = global_min
+        self.global_max = global_max
+
+    def __call__(self, data):
+        """
+        Normalize input and target images to the 0-1 range using the global min and max.
+
+        Args:
+            data (tuple): Containing input and target images to be normalized.
+
+        Returns:
+            Tuple: Normalized input and target images.
+        """
+        input_img, target_img = data
+
+        # Normalize input image
+        input_normalized = (input_img - self.global_min) / (self.global_max - self.global_min)
+        input_normalized = np.clip(input_normalized, 0, 1)  # Ensure within [0, 1] range
+
+        # Normalize target image
+        target_normalized = (target_img - self.global_min) / (self.global_max - self.global_min)
+        target_normalized = np.clip(target_normalized, 0, 1)  # Ensure within [0, 1] range
+
+        return input_normalized.astype(np.float32), target_normalized.astype(np.float32)
+
+
 class LogScaleAndNormalize(object):
     """
     Apply logarithmic scaling followed by Z-score normalization to a single-channel image.

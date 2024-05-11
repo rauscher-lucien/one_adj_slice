@@ -109,17 +109,37 @@ def compute_global_mean_and_std(dataset_path, checkpoints_path):
     return global_mean, global_std
 
 
-
-from concurrent.futures import ProcessPoolExecutor
-
-def process_image(file_path):
+def compute_global_min_and_max(dataset_path, checkpoints_path):
     """
-    Function to read an image file and compute its mean and standard deviation.
+    Computes and saves the global minimum and maximum values across all TIFF stacks
+    in the given directory and its subdirectories, saving the results in the specified directory.
+
+    Parameters:
+    - dataset_path: Path to the directory containing the TIFF files.
+    - checkpoints_path: Path to the directory where results will be saved.
     """
-    if file_path.lower().endswith('.tiff'):
-        stack = tifffile.imread(file_path)
-        return np.mean(stack), np.std(stack)
-    return None
+    global_min = float('inf')
+    global_max = float('-inf')
+
+    for subdir, _, files in os.walk(dataset_path):
+        for filename in files:
+            if filename.lower().endswith(('.tif', '.tiff')):
+                filepath = os.path.join(subdir, filename)
+                stack = tifffile.imread(filepath)
+                stack_min = np.min(stack)
+                stack_max = np.max(stack)
+                global_min = min(global_min, stack_min)
+                global_max = max(global_max, stack_max)
+
+    # Define the save_path in the checkpoints directory
+    save_path = os.path.join(checkpoints_path, 'min_max_params.pkl')
+
+    # Save the computed global minimum and maximum to a file
+    with open(save_path, 'wb') as f:
+        pickle.dump({'global_min': global_min, 'global_max': global_max}, f)
+
+    print(f"Global min and max parameters saved to {save_path}")
+    return global_min, global_max
 
 
 
@@ -139,9 +159,6 @@ def denormalize_image(normalized_img, mean, std):
     original_img = (normalized_img * std) + mean
     return original_img.astype(np.float32)
 
-
-import os
-import pickle
 
 def load_normalization_params(data_dir):
     """
@@ -240,36 +257,6 @@ def clip_extremes(data, lower_percentile=0, upper_percentile=100):
     return np.clip(data, lower_bound, upper_bound)
 
 
-
-def compute_global_min_max_and_save(dataset_path):
-    """
-    Computes and saves the global minimum and maximum values across all TIFF stacks
-    in the given directory and its subdirectories, saving the results in the same directory.
-
-    Parameters:
-    - dataset_path: Path to the directory containing the TIFF files.
-    """
-    global_min = float('inf')
-    global_max = float('-inf')
-    for subdir, _, files in os.walk(dataset_path):
-        for filename in files:
-            if filename.lower().endswith(('.tif', '.tiff')):
-                filepath = os.path.join(subdir, filename)
-                stack = tifffile.imread(filepath)
-                stack_min = np.min(stack)
-                stack_max = np.max(stack)
-                global_min = min(global_min, stack_min)
-                global_max = max(global_max, stack_max)
-    
-    # Define the save_path in the same directory as the dataset
-    save_path = os.path.join(dataset_path, 'min_max_params.pkl')
-
-    # Save the computed global minimum and maximum to a file
-    with open(save_path, 'wb') as f:
-        pickle.dump({'global_min': global_min, 'global_max': global_max}, f)
-    
-    print(f"Global min and max parameters saved to {save_path}")
-    return global_min, global_max
 
 
 

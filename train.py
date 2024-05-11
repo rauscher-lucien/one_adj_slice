@@ -12,9 +12,7 @@ from torch.utils.tensorboard import SummaryWriter
 from utils import *
 from transforms import *
 from dataset import *
-from model import *
-from flex_model import *
-from networks import *
+from model_v_1 import *
 
 
 class Trainer:
@@ -78,29 +76,23 @@ class Trainer:
 
         start_time = time.time()
         mean, std = compute_global_mean_and_std(self.train_data_dir, self.checkpoints_dir)
+        min, max = compute_global_min_and_max(self.train_data_dir, self.checkpoints_dir)
         end_time = time.time()
         execution_time = end_time - start_time
         print(f"Execution time: {execution_time} seconds")
 
-        if self.log_scaling:
-            transform_train = transforms.Compose([
-                LogScaleAndNormalize(mean, std),
-                RandomCrop(output_size=(64,64)),
-                RandomHorizontalFlip(),
-                ToTensor()
-            ])
-        else:
-            transform_train = transforms.Compose([
-                Normalize(mean, std),
-                RandomCrop(output_size=(64,64)),
-                RandomHorizontalFlip(),
-                ToTensor()
-            ])
+
+        transform_train = transforms.Compose([
+            Normalize(mean, std),
+            RandomCrop(output_size=(64,64)),
+            RandomHorizontalFlip(),
+            ToTensor()
+        ])
 
 
         transform_inv_train = transforms.Compose([
-            ToNumpy(),
-            DenormalizeAndClip16Bit(mean, std)
+            BackTo01Range(),
+            ToNumpy()
         ])
 
 
@@ -120,10 +112,10 @@ class Trainer:
 
         ### initialize network ###
 
-        model = NewUNet().to(self.device)
-        #model = AutoEncoder().to(self.device)
-        #model = FlexibleUNet(depth=self.model_depth).to(self.device)
+        model = UNet(1, 1).to(self.device)
+
         criterion = nn.MSELoss().to(self.device)
+
         optimizer = torch.optim.Adam(model.parameters(), self.lr)
 
         st_epoch = 0
@@ -149,6 +141,8 @@ class Trainer:
                 #plot_intensity_line_distribution(target_img, 'target')
 
                 loss = criterion(denoised_input, target_img)
+
+
                 train_loss += loss.item() 
                 loss.backward()
                 optimizer.step()
@@ -160,8 +154,8 @@ class Trainer:
                 target_img = transform_inv_train(target_img)[..., 0]
                 denoised_input = transform_inv_train(denoised_input)[..., 0]
 
-                plot_intensity_line_distribution(input_img, 'input')
-                plot_intensity_line_distribution(denoised_input, 'output')
+                #plot_intensity_line_distribution(input_img, 'input')
+                #plot_intensity_line_distribution(denoised_input, 'output')
 
                 for j in range(target_img.shape[0]):
                     
