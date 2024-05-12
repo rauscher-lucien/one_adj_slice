@@ -37,8 +37,8 @@ def main():
 
     #********************************************************#
 
-    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-test_2"
-    data_dir = r"Z:\members\Rauscher\data\big_data_small-test\Drosophila_twin_A"
+    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\big_data_small-test_2"
+    data_dir = r"C:\Users\rausc\Documents\EMBL\data\droso_good"
     project_name = os.path.basename(project_dir)
     inference_name = os.path.basename(data_dir)
 

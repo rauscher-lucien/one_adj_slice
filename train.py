@@ -90,7 +90,6 @@ class Trainer:
             transform_train = transforms.Compose([
                 Normalize(mean, std),
                 RandomCrop(output_size=(64,64)),
-                AddGaussianNoise(),
                 RandomHorizontalFlip(),
                 ToTensor()
             ])
