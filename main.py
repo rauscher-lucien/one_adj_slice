@@ -79,7 +79,7 @@ def main():
         train_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
         val_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
-        project_name = 'Nema_B-vxm-test_2'
+        project_name = 'Nema_B-AdaIN-test_1'
         train_continue = 'off'
 
 
@@ -96,8 +96,6 @@ def main():
 
     data_dict['num_freq_disp'] = 1
     data_dict['train_continue'] = train_continue
-
-    data_dict['log_scaling'] = False
 
 
     TRAINER = Trainer(data_dict)

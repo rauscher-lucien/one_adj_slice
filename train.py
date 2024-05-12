@@ -13,11 +13,6 @@ from transforms import *
 from dataset import *
 from model import *
 
-from vxm_model import *
-
-from networks import *
-from losses import *
-
 
 class Trainer:
 
@@ -43,8 +38,6 @@ class Trainer:
 
         self.num_freq_disp = data_dict['num_freq_disp']
         self.train_continue = data_dict['train_continue']
-
-        self.log_scaling = data_dict['log_scaling']
 
         self.device = get_device()
 
@@ -83,20 +76,13 @@ class Trainer:
         execution_time = end_time - start_time
         print(f"Execution time: {execution_time} seconds")
 
-        if self.log_scaling:
-            transform_train = transforms.Compose([
-                LogScaleAndNormalize(mean, std),
-                RandomCrop(output_size=(64,64)),
-                RandomHorizontalFlip(),
-                ToTensor()
-            ])
-        else:
-            transform_train = transforms.Compose([
-                Normalize(mean, std),
-                RandomCrop(output_size=(64,64)),
-                RandomHorizontalFlip(),
-                ToTensor()
-            ])
+
+        transform_train = transforms.Compose([
+            Normalize(mean, std),
+            RandomCrop(output_size=(64,64)),
+            RandomHorizontalFlip(),
+            ToTensor()
+        ])
 
 
         transform_inv_train = transforms.Compose([
@@ -115,25 +101,12 @@ class Trainer:
             shuffle=True,
             num_workers=0)
 
-        num_train = len(dataset_train)
-        num_batch_train = int((num_train / self.batch_size) + ((num_train % self.batch_size) != 0))
-
 
         ### initialize network ###
 
         model = NewUNet().to(self.device)
         criterion = nn.MSELoss().to(self.device)
         optimizer = torch.optim.Adam(model.parameters(), self.lr)
-
-        vxm_model = VxmDense(inshape=(64, 64), 
-                             nb_unet_features=[[16,32,32,32],[32,32,32,32,32,16,16]], 
-                             sample_mode="bilinear", int_downsize=1, bidir=True)
-        vxm_losses = [NCC().loss, NCC().loss, Grad_v2('l2', loss_mult=1, smooth_order=1).loss]
-        vxm_optimizer = torch.optim.Adam(vxm_model.parameters(), lr=1e-4)
-
-        own_vxm = VxmDense2D(inshape=(64, 64))
-        own_vxm_crit = nn.MSELoss().to(self.device)
-        own_vxm_opt = torch.optim.Adam(own_vxm.parameters(), self.lr)
 
         st_epoch = 0
         best_train_loss = float('inf')
@@ -147,61 +120,20 @@ class Trainer:
         for epoch in range(st_epoch + 1, self.num_epoch + 1):
             model.train()  # Ensure model is in training mode
             train_loss = 0.0
-            train_vxm_loss = 0
-            own_vxm_loss = 0
 
             for batch, data in enumerate(loader_train, 1):
 
                 input_img, target_img = [x.squeeze(0).to(self.device) for x in data]
 
-                with torch.no_grad():
-                    denoised_input = model(input_img)
-                    denoised_target = model(target_img)
-
-                own_vxm_opt.zero_grad()
-                warped_input, warped_target, flow_2 = own_vxm(denoised_input, denoised_target)
-                own_vxm_loss = 0,5*own_vxm_crit(denoised_input, warped_target)+\
-                    0,5*own_vxm_crit(denoised_target, warped_input)+\
-                    own_vxm_crit(torch.zeros_like(flow_2), flow_2)
-                own_vxm_loss.backward()
-                own_vxm_opt.step()
-
-                plot_images([denoised_input, denoised_target, warped_input, warped_target], titles=['1', '2', '3', '4'])
-
-
-                vxm_optimizer.zero_grad()
-                aligned_target_denoised, aligned_input_denoised, flow  = vxm_model(denoised_input, denoised_target)
-
-                vxm_loss = 0.5*vxm_losses[0](denoised_input, aligned_target_denoised)+\
-                           0.5*vxm_losses[1](denoised_target, aligned_input_denoised)+\
-                           vxm_losses[2](torch.zeros_like(flow), flow)
-                
-                vxm_loss.backward()
-                vxm_optimizer.step()
-
-
-                with torch.no_grad():
-                    pos_flow =  vxm_model.fullsize(vxm_model.integrate(flow)) if vxm_model.fullsize else vxm_model.integrate(flow)
-                    aligned_target = vxm_model.transformer(target_img, pos_flow, mode="nearest")
-                    neg_flow =  vxm_model.fullsize(vxm_model.integrate(-flow)) if vxm_model.fullsize else vxm_model.integrate(-flow)
-                    aligned_input = vxm_model.transformer(input_img, neg_flow, mode="nearest")
-
+                denoised_input = model(input_img)
 
                 optimizer.zero_grad()
-                pred_input = model(input_img)
-                pred_target = model(target_img)
-
-                # denoised = post_op(pred, spec_value=spec_val, spec_mask=spec_mask)
-                loss = 0.5*criterion(pred_input, aligned_target)+\
-                       0.5*criterion(pred_target, aligned_input)
+                loss = criterion(denoised_input, target_img)
 
                 loss.backward()
                 optimizer.step()
 
                 train_loss += loss.item()
-                train_vxm_loss += vxm_loss.item()
-
-                #plot_images([input_img, target_img, aligned_input, aligned_target], titles=['1', '2', '3', '4'])
 
                 
             if epoch % self.num_freq_disp == 0:
