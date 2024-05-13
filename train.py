@@ -40,7 +40,7 @@ class Trainer:
         self.num_freq_disp = data_dict['num_freq_disp']
         self.train_continue = data_dict['train_continue']
 
-        self.log_scaling = data_dict['log_scaling']
+        self.extra_noise = data_dict['extra_noise']
 
         self.device = get_device()
 
@@ -79,10 +79,11 @@ class Trainer:
         execution_time = end_time - start_time
         print(f"Execution time: {execution_time} seconds")
 
-        if self.log_scaling:
+        if self.extra_noise:
             transform_train = transforms.Compose([
-                LogScaleAndNormalize(mean, std),
+                Normalize(mean, std),
                 RandomCrop(output_size=(64,64)),
+                AddGaussianNoise(),
                 RandomHorizontalFlip(),
                 ToTensor()
             ])
