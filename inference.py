@@ -37,8 +37,8 @@ def main():
 
     #********************************************************#
 
-    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\droso_good-test_1"
-    data_dir = r"C:\Users\rausc\Documents\EMBL\data\droso_good"
+    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-test_2"
+    data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
     project_name = os.path.basename(project_dir)
     inference_name = os.path.basename(data_dir)
 
@@ -75,8 +75,8 @@ def main():
     ])
 
     inv_inf_transform = transforms.Compose([
-        BackTo01Range(),
-        ToNumpy()
+        ToNumpy(),
+        Denormalize(mean, std)
     ])
 
     inf_dataset = InferenceDataset(
@@ -112,16 +112,15 @@ def main():
             output_img = model(input_img)
             output_img_np = inv_inf_transform(output_img)  # Convert output tensors to numpy format for saving
 
+            plot_intensity_line_distribution(output_img_np)
+
             for img in output_img_np:
                 output_images.append(img)
 
             print('BATCH %04d/%04d' % (batch, len(inf_loader)))
-
-    # Clip output images to the 0-1 range
-    output_images_clipped = [np.clip(img, 0, 1) for img in output_images]
     
     # Stack and save output images
-    output_stack = np.stack(output_images_clipped, axis=0)
+    output_stack = np.stack(output_images, axis=0)
     filename = f'output_stack-{project_name}-{inference_name}-epoch{epoch}.TIFF'
     tifffile.imwrite(os.path.join(inference_folder, filename), output_stack)
 
