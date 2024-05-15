@@ -37,8 +37,8 @@ def main():
 
     #********************************************************#
 
-    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-test_2"
-    data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
+    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\big_data_small-no_nema-no_droso-test_1"
+    data_dir = r"C:\Users\rausc\Documents\EMBL\data\droso_good"
     project_name = os.path.basename(project_dir)
     inference_name = os.path.basename(data_dir)
 
@@ -111,8 +111,6 @@ def main():
 
             output_img = model(input_img)
             output_img_np = inv_inf_transform(output_img)  # Convert output tensors to numpy format for saving
-
-            plot_intensity_line_distribution(output_img_np)
 
             for img in output_img_np:
                 output_images.append(img)

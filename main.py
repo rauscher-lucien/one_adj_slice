@@ -71,9 +71,9 @@ def main():
         train_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
         val_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
-        project_name = 'Nema_B-extra_noise-test_1'
+        project_name = 'Nema_B-test_x'
         train_continue = 'off'
-        extra_noise = True
+        extra_noise = False
 
     data_dict = {
         'train_data_dir': train_data_dir,
