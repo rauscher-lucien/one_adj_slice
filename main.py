@@ -84,7 +84,7 @@ def main():
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
         project_name = 'Nema_B-v_1-test_1'
         train_continue = 'off'
-        model_depth = 4
+        model_depth = 5
 
 
     data_dict = {}

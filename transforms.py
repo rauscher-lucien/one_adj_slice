@@ -484,3 +484,43 @@ class ToNumpy(object):
     def __call__(self, data):
 
         return data.to('cpu').detach().numpy().transpose(0, 2, 3, 1)
+    
+
+    
+class Denormalize(object):
+    """
+    Denormalize an image using mean and standard deviation, then convert it to 16-bit format.
+    
+    Args:
+        mean (float or tuple): Mean for each channel.
+        std (float or tuple): Standard deviation for each channel.
+    """
+
+    def __init__(self, mean, std):
+        """
+        Initialize with mean and standard deviation.
+        
+        Args:
+            mean (float or tuple): Mean for each channel.
+            std (float or tuple): Standard deviation for each channel.
+        """
+        self.mean = mean
+        self.std = std
+    
+    def __call__(self, img):
+        """
+        Denormalize the image and convert it to 16-bit format.
+        
+        Args:
+            img (numpy array): Normalized image.
+        
+        Returns:
+            numpy array: Denormalized 16-bit image.
+        """
+        # Denormalize the image by reversing the normalization process
+        img_denormalized = (img * self.std) + self.mean
+
+        # Scale the image to the range [0, 65535] and convert to 16-bit unsigned integer
+        img_16bit = img_denormalized.astype(np.uint16)
+        
+        return img_16bit

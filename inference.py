@@ -37,10 +37,12 @@ def main():
 
     #********************************************************#
 
-    project_dir = r"C:\Users\rausc\Documents\EMBL\projects\one_adj_slice\Nema_B-v_1-test_1"
+    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-flex_model-5-test_2"
     data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
     project_name = os.path.basename(project_dir)
     inference_name = os.path.basename(data_dir)
+
+    depth = 5
 
 
     #********************************************************#
@@ -75,8 +77,8 @@ def main():
     ])
 
     inv_inf_transform = transforms.Compose([
-        BackTo01Range(),
-        ToNumpy()
+        ToNumpy(),
+        Denormalize(mean, std)
     ])
 
     inf_dataset = InferenceDataset(
@@ -94,7 +96,7 @@ def main():
     )
 
     
-    model = UNet(1, 1).to(device)
+    model = UNet(1, 1, depth= depth).to(device)
     model, epoch = load(checkpoints_dir, model)
 
     num_inf = len(inf_dataset)
