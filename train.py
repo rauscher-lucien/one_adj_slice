@@ -114,7 +114,7 @@ class Trainer:
 
         ### initialize network ###
 
-        model = NewUNet().to(self.device)
+        model = UNet(1, 1, depth=self.model_depth).to(self.device)
 
         criterion = nn.MSELoss().to(self.device)
 

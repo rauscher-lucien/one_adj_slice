@@ -50,7 +50,7 @@ class UNet(nn.Module):
                 self.decoder_blocks.append(SimpleConvBlock(next_channels, next_channels))
 
         # Final output layer
-        self.final_layer = nn.Conv2d(current_channels, out_channels, kernel_size=1)
+        self.final_layer = nn.Conv2d(next_channels, out_channels, kernel_size=1)
 
     def forward(self, x):
         # Encoder pass
