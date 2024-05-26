@@ -87,7 +87,7 @@ class REDNet30(nn.Module):
         conv_layers = []
         deconv_layers = []
 
-        conv_layers.append(nn.Sequential(nn.Conv2d(3, num_features, kernel_size=3, stride=2, padding=1),
+        conv_layers.append(nn.Sequential(nn.Conv2d(1, num_features, kernel_size=3, stride=2, padding=1),
                                          nn.ReLU(inplace=True)))
         for i in range(num_layers - 1):
             conv_layers.append(nn.Sequential(nn.Conv2d(num_features, num_features, kernel_size=3, padding=1),
@@ -96,7 +96,7 @@ class REDNet30(nn.Module):
         for i in range(num_layers - 1):
             deconv_layers.append(nn.Sequential(nn.ConvTranspose2d(num_features, num_features, kernel_size=3, padding=1),
                                                nn.ReLU(inplace=True)))
-        deconv_layers.append(nn.ConvTranspose2d(num_features, 3, kernel_size=3, stride=2, padding=1, output_padding=1))
+        deconv_layers.append(nn.ConvTranspose2d(num_features, 1, kernel_size=3, stride=2, padding=1, output_padding=1))
 
         self.conv_layers = nn.Sequential(*conv_layers)
         self.deconv_layers = nn.Sequential(*deconv_layers)
