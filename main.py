@@ -83,7 +83,7 @@ def main():
         'num_epoch': 600,
         'batch_size': 8,
         'lr': 1e-5,
-        'num_freq_disp': 1,
+        'num_freq_disp': 5,
         'train_continue': train_continue,
         'extra_noise': extra_noise
     }

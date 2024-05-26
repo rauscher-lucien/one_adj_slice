@@ -13,6 +13,7 @@ from utils import *
 from transforms import *
 from dataset import *
 from model import *
+from rednet_model import *
 
 
 class Trainer:
@@ -97,8 +98,8 @@ class Trainer:
 
 
         transform_inv_train = transforms.Compose([
-            BackTo01Range(),
-            ToNumpy()
+            ToNumpy(),
+            Denormalize(mean, std)
         ])
 
 
@@ -118,7 +119,7 @@ class Trainer:
 
         ### initialize network ###
 
-        model = NewUNet().to(self.device)
+        model = REDNet10().to(self.device)
 
         criterion = nn.MSELoss().to(self.device)
 
