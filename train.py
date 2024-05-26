@@ -119,7 +119,7 @@ class Trainer:
 
         ### initialize network ###
 
-        model = REDNet10().to(self.device)
+        model = REDNet30().to(self.device)
 
         criterion = nn.MSELoss().to(self.device)
 

@@ -13,6 +13,7 @@ from model import *
 from transforms import *
 from utils import *
 from dataset import *
+from rednet_model import *
 
 
 def load(checkpoints_dir, model, epoch=1, optimizer=None, device='cpu'):
@@ -37,7 +38,7 @@ def main():
 
     #********************************************************#
 
-    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-test_3"
+    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-rednet-test_1"
     data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
     project_name = os.path.basename(project_dir)
     inference_name = os.path.basename(data_dir)
@@ -94,7 +95,7 @@ def main():
     )
 
     
-    model = NewUNet()
+    model = REDNet10()
     model, epoch = load(checkpoints_dir, model)
 
     num_inf = len(inf_dataset)
