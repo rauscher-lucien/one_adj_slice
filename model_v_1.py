@@ -18,7 +18,7 @@ class SimpleConvBlock(nn.Module):
         return self.convblock(x)
 
 class UNet(nn.Module):
-    def __init__(self, in_channels, out_channels, base_channels=64, depth=4, use_skip_connections=True):
+    def __init__(self, in_channels, out_channels, base_channels=32, depth=5, use_skip_connections=True):
         super(UNet, self).__init__()
         self.depth = depth
         self.use_skip_connections = use_skip_connections
