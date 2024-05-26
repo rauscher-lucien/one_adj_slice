@@ -42,6 +42,7 @@ class Trainer:
         self.train_continue = data_dict['train_continue']
 
         self.extra_noise = data_dict['extra_noise']
+        self.model_name = data_dict['model_name']
 
         self.device = get_device()
 
@@ -119,7 +120,12 @@ class Trainer:
 
         ### initialize network ###
 
-        model = REDNet30().to(self.device)
+        if self.model_name == 'REDNet10':
+            model = REDNet10().to(self.device)
+        elif self.model_name == 'REDNet20':
+            model = REDNet20().to(self.device)
+        elif self.model_name == 'REDNet30':
+            model = REDNet30().to(self.device)
 
         criterion = nn.MSELoss().to(self.device)
 

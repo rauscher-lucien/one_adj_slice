@@ -50,6 +50,7 @@ def main():
                             help='Flag to continue training: "on" or "off" (default: "off")')
         parser.add_argument('--extra_noise', type=bool, default=False,
                             help='Add extra noise to the data: True or False (default: False)')
+        parser.add_argument('--model_name', type=str, help='Name of the model')
 
         args = parser.parse_args()
 
@@ -58,6 +59,7 @@ def main():
         project_name = args.project_name
         train_continue = args.train_continue
         extra_noise = args.extra_noise
+        model_name = args.model_name
         project_dir = os.path.join('/g', 'prevedel', 'members', 'Rauscher', 'projects', 'one_adj_slice')
         
         print(f"Using train data directory: {train_data_dir}")
@@ -74,6 +76,7 @@ def main():
         project_name = 'Nema_B-test_x'
         train_continue = 'off'
         extra_noise = False
+        model_name = 'REDNet10'
 
     data_dict = {
         'train_data_dir': train_data_dir,
@@ -85,7 +88,8 @@ def main():
         'lr': 1e-5,
         'num_freq_disp': 5,
         'train_continue': train_continue,
-        'extra_noise': extra_noise
+        'extra_noise': extra_noise,
+        'model_name' : model_name
     }
 
     trainer = Trainer(data_dict)

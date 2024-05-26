@@ -38,7 +38,7 @@ def main():
 
     #********************************************************#
 
-    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-rednet-test_1"
+    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-rednet30-test_1"
     data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
     project_name = os.path.basename(project_dir)
     inference_name = os.path.basename(data_dir)
@@ -95,7 +95,7 @@ def main():
     )
 
     
-    model = REDNet10()
+    model = REDNet30()
     model, epoch = load(checkpoints_dir, model)
 
     num_inf = len(inf_dataset)
