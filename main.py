@@ -60,6 +60,7 @@ def main():
                             help='Flag to continue training: "on" or "off" (default: "off")')
         parser.add_argument('--model_depth', type=int, help='model depth')
         parser.add_argument('--use_skip_connections', action='store_true', help='Enable skip connections')
+        parser.add_argument('--base_channels', type=int, help='base channels')
 
         # Parse arguments
         args = parser.parse_args()
@@ -71,6 +72,7 @@ def main():
         train_continue = args.train_continue
         model_depth = args.model_depth
         use_skip_connections = args.use_skip_connections
+        base_channels = args.base_channels
         project_dir = os.path.join('/g', 'prevedel', 'members', 'Rauscher', 'projects', 'one_adj_slice')
 
         print(f"Using train data directory: {train_data_dir}")
@@ -78,6 +80,8 @@ def main():
         print(f"Project name: {project_name}")
         print(f"Train continue: {train_continue}")
         print(f"model depth: {model_depth}")
+        print(f"Skip connections enabled: {use_skip_connections}")
+        print(f"base channels: {base_channels}")
     else:
         # If not running on the server, perhaps use a default data_dir or handle differently
         train_data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
@@ -86,7 +90,8 @@ def main():
         project_name = 'Nema_B-v_1-test_1'
         train_continue = 'off'
         model_depth = 5
-        use_skip_connections = False
+        use_skip_connections = True
+        base_channels = 16
 
 
     data_dict = {}
@@ -106,6 +111,7 @@ def main():
     data_dict['log_scaling'] = False
     data_dict['model_depth'] = model_depth
     data_dict['use_skip_connections'] = use_skip_connections
+    data_dict['base_channels'] = base_channels
 
 
     TRAINER = Trainer(data_dict)

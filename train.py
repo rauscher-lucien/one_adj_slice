@@ -45,6 +45,7 @@ class Trainer:
         self.log_scaling = data_dict['log_scaling']
         self.model_depth = data_dict['model_depth']
         self.use_skip_connections = data_dict['use_skip_connections']
+        self.base_channels = data_dict['base_channels']
 
         self.device = get_device()
 
@@ -115,7 +116,7 @@ class Trainer:
 
         ### initialize network ###
 
-        model = UNet(1, 1, depth=self.model_depth, use_skip_connections=self.use_skip_connections).to(self.device)
+        model = UNet(1, 1, base_channels=self.base_channels, depth=self.model_depth, use_skip_connections=self.use_skip_connections).to(self.device)
 
         criterion = nn.MSELoss().to(self.device)
 
