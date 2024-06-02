@@ -59,7 +59,7 @@ def main():
         parser.add_argument('--train_continue', type=str, default='off', choices=['on', 'off'],
                             help='Flag to continue training: "on" or "off" (default: "off")')
         parser.add_argument('--model_depth', type=int, help='model depth')
-    
+        parser.add_argument('--use_skip_connections', action='store_true', help='Enable skip connections')
 
         # Parse arguments
         args = parser.parse_args()
@@ -70,6 +70,7 @@ def main():
         project_name = args.project_name 
         train_continue = args.train_continue
         model_depth = args.model_depth
+        use_skip_connections = args.use_skip_connections
         project_dir = os.path.join('/g', 'prevedel', 'members', 'Rauscher', 'projects', 'one_adj_slice')
 
         print(f"Using train data directory: {train_data_dir}")
@@ -84,7 +85,8 @@ def main():
         project_dir = os.path.join('C:\\', 'Users', 'rausc', 'Documents', 'EMBL', 'projects', 'one_adj_slice')
         project_name = 'Nema_B-v_1-test_1'
         train_continue = 'off'
-        model_depth = 6
+        model_depth = 5
+        use_skip_connections = True
 
 
     data_dict = {}
@@ -103,6 +105,7 @@ def main():
 
     data_dict['log_scaling'] = False
     data_dict['model_depth'] = model_depth
+    data_dict['use_skip_connections'] = use_skip_connections
 
 
     TRAINER = Trainer(data_dict)
