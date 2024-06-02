@@ -86,7 +86,7 @@ def main():
         project_name = 'Nema_B-v_1-test_1'
         train_continue = 'off'
         model_depth = 5
-        use_skip_connections = True
+        use_skip_connections = False
 
 
     data_dict = {}
