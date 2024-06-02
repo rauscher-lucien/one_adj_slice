@@ -37,12 +37,12 @@ def main():
 
     #********************************************************#
 
-    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-flex_model-5-test_2"
+    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-flex_model-6-test_2"
     data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
     project_name = os.path.basename(project_dir)
     inference_name = os.path.basename(data_dir)
 
-    depth = 5
+    depth = 6
 
 
     #********************************************************#
@@ -118,12 +118,9 @@ def main():
                 output_images.append(img)
 
             print('BATCH %04d/%04d' % (batch, len(inf_loader)))
-
-    # Clip output images to the 0-1 range
-    output_images_clipped = [np.clip(img, 0, 1) for img in output_images]
     
     # Stack and save output images
-    output_stack = np.stack(output_images_clipped, axis=0)
+    output_stack = np.stack(output_images, axis=0)
     filename = f'output_stack-{project_name}-{inference_name}-epoch{epoch}.TIFF'
     tifffile.imwrite(os.path.join(inference_folder, filename), output_stack)
 
