@@ -37,12 +37,13 @@ def main():
 
     #********************************************************#
 
-    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-flex_model-6-test_2"
+    project_dir = r"Z:\members\Rauscher\projects\one_adj_slice\Nema_B-flex_model-3-32-test_2"
     data_dir = r"C:\Users\rausc\Documents\EMBL\data\Nematostella_B"
     project_name = os.path.basename(project_dir)
     inference_name = os.path.basename(data_dir)
 
-    depth = 6
+    depth = 3
+    base_channels = 32
 
 
     #********************************************************#
@@ -96,7 +97,7 @@ def main():
     )
 
     
-    model = UNet(1, 1, depth= depth).to(device)
+    model = UNet(1, 1, depth= depth, base_channels=base_channels).to(device)
     model, epoch = load(checkpoints_dir, model)
 
     num_inf = len(inf_dataset)
